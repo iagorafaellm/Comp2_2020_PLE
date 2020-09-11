@@ -11,10 +11,8 @@ public class Fracao {
      * @param positiva se true, a fração será positiva; caso contrário, será negativa
      */
 
-    private int numerador, denominador;
-    private int sinal;
-    private boolean positiva;
-    private boolean fracaoNula;
+    private int numerador, denominador, sinal;
+    private boolean positiva, fracaoNula;
 
     public Fracao(int numerador, int denominador, boolean positiva) {
         this.numerador = numerador;
@@ -75,10 +73,7 @@ public class Fracao {
     }
 
     public boolean isPositiva() {
-        if (this.fracaoNula == true) {
-            return false;
-        }
-        return this.positiva;
+        return !this.fracaoNula && this.positiva;
     }
 
     @Override
@@ -89,9 +84,9 @@ public class Fracao {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Fracao fracao = (Fracao) o;         //typecast transforma o num objeto tipo Fracao
-        if (this.fracaoNula == true && fracao.fracaoNula == true) {
-            return true;
+        Fracao fracao = (Fracao) o;                         //typecast transforma o num objeto tipo Fracao
+        if (this.fracaoNula && fracao.fracaoNula) {         //verifica se as duas fracoes sao true e, se forem,
+            return true;                                    //retorna true
         }
         return this.getFracaoGeratriz().getNumerador() == fracao.getFracaoGeratriz().getNumerador() &&
                 this.getFracaoGeratriz().getDenominador() == fracao.getFracaoGeratriz().getDenominador() &&
