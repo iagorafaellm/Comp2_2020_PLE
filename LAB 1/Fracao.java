@@ -26,12 +26,7 @@ public class Fracao {
         else {
             this.sinal = -1;
         }
-        if (this.numerador == 0) {
-            fracaoNula = true;
-        }
-        else {
-            fracaoNula = false;
-        }
+        fracaoNula = this.numerador == 0;
     }
 
     /**
