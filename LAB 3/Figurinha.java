@@ -1,17 +1,21 @@
 public class Figurinha {
 
+    private final int posicao;
+    private final String urlImagem;
+    private boolean colada, repetida;
+
     public Figurinha(int posicao, String urlImagem) {
-        // ToDo IMPLEMENT ME!!!
+        this.posicao = posicao;
+        this.urlImagem = urlImagem;
     }
 
     /**
      * Indica a posição, no álbum, que esta figurinha deve ocupar.
      *
-     * @return Um int dizendo a posição da figurinha
+     * @return Um int dizendo a posição da figurinha.
      */
     public int getPosicao() {
-        // ToDo IMPLEMENT ME!!!
-        return 0;
+        return this.posicao;
     }
 
     /**
@@ -20,7 +24,22 @@ public class Figurinha {
      * @return uma String com o endereço desejado
      */
     public String getUrlImagem() {
-        // ToDo IMPLEMENT ME!!!
-        return null;
+        return this.urlImagem;
+    }
+
+    public boolean isColada() {
+        return colada;
+    }
+
+    public boolean isRepetida() {
+        return repetida;
+    }
+
+    public void setColada(boolean colada) {
+        this.colada = colada;
+    }
+
+    public void setRepetida(boolean repetida) {
+        this.repetida = repetida;
     }
 }

@@ -1,9 +1,9 @@
 A ideia é criarmos um álbum de figurinhas virtual.
 O usuário compra "pacotinhos" de figurinhas, cada um com certa quantidade de figurinhas em
-cada pacotinho (também é definida no momento da criação do álbum).
+cada pacotinho (também é definida no momento da criação do álbum). OK
 
 Cada figurinha deve indicar a sua posição no álbum, e deve ter uma String indicando
-a URL (endereço na rede) de sua imagem.
+a URL (endereço na rede) de sua imagem. OK
 Dois objetos Figurinha devem ser considerados iguais quando se referem à mesma posição do álbum.
 (Duas figurinhas "iguais" podem ter URLs distintas, por qualquer razão -- redundâcia, etc.)
 
