@@ -1,0 +1,47 @@
+- Crie uma classe Produto, com atributos:
+    --> id (final long) ok
+    --> pesoEmGramas (int) ok
+    --> preçoEmReais (float) ok
+    --> categoria (String) ok
+    --> quantidadeEmEstoque (int) ok
+
+- Crie uma classe Livro, herdando de Produto, com os seguintes atributos extras:
+    --> titulo (final String) ok
+    --> autor (final String) ok
+    --> anoDePublicacao (final int) ok
+    --> numeroDePaginas (final int) ok
+    A categoria de qualquer livro deve ser automaticamente "Publicações" ok
+
+- Crie uma classe Roupa, herdando de Produto, com os seguites atributos extras:
+    --> tamanho (final char)  //  'p' 'm' 'g', etc. ok (adicionei 'u', como tamanho único)
+    --> cor (String) ok
+    A categoria de qualquer livro deve ser automaticamente "Vestuário" ok
+
+- Crie uma classe LojaVirtual, com os atributos que você julgar necessários,
+e com os seguintes métodos públicos:
+    --> getTamanhoEstoque() para dizer a quantidade total de produtos que há no estoque
+        da loja (considerando todas as unidades de todos os produtos) ok
+    --> getTamanhoEstoque(Produto produto) para dizer a quantidade de unidades
+        do produto passado como parâmetro que há no estoque ok
+    --> public void incluirProdutoNoEstoque(Produto produto, int quantidade) ok
+    --> public String efetuarVenda(Produto produto, int quantidade) ok
+        i) verifica se o produto existe no estoque da loja e na quantidade desejada
+           (se não existir, não faz nada) ok
+        ii) chama o método privado receberPagamento(float valor), que retorna
+            se o pagamento foi recebido com sucesso (um boolean) ok
+        iii) atualiza o estoque da loja ok
+        iv) retorna uma String representando o recibo da compra ok
+    --> public getTotalValorVendas() que retorna o valor total
+        de todas as vendas efetuadas pela loja ok
+
+Obs.: O método receberPagamento(), por enquanto, apenas lançará o valor recebido
+  no registro de fluxo de caixa (valor total recebido) e retornará true
+  (indicando que o pagamento foi recebido com sucesso). ok
+
+
+- Escreva testes que cubram todos os métodos públicos acima. TDD opcional.
+Nos seus testes, faça com que a loja venda tanto livros quanto roupas. ok
+
+- Escreva o método toString() para Livro e Roupa, incluindo todas as informações
+pertinentes do seu objeto (não inclua id nem quantidadeEmEstoque). ok
+
