@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /**
  *  Esta classe implementa um sistema de mensagens curtas estilo Twitter.
  *  É preciso cadastrar um usuário, identificado pelo seu e-mail, para que tuítes possam ser feitos.
@@ -10,6 +12,9 @@
 public class TuiterLite<T> {
 
     public static final int TAMANHO_MAXIMO_TUITES = 120;
+    ArrayList<Hashtag> hashtags = new ArrayList<>();
+    ArrayList<Usuario> usuarios = new ArrayList<>();
+    Hashtag hashtagMaiscomum;
 
     /**
      * Cadastra um usuário, retornando o novo objeto Usuario criado.
@@ -19,13 +24,9 @@ public class TuiterLite<T> {
      * @return O Usuario criado.
      */
     public Usuario cadastrarUsuario(String nome, String email) {
-        // toDo: verificar se o usuário já existe no sistema (pelo email)
-
-        Usuario novoUsuario = new Usuario(nome, email);
-
-        // toDo: armazenar esse usuário em alguma estrutura que seja atributo de TuiterLite
-
-        return novoUsuario;
+        Usuario usuario = new Usuario(nome, email);
+        usuarios.add(usuario);
+        return usuario;
     }
 
     /**
@@ -38,8 +39,37 @@ public class TuiterLite<T> {
      * @return Um "tuíte", que será devidamente publicado no sistema
      */
     public Tuite tuitarAlgo(Usuario usuario, String texto) {
-        // ToDo IMPLEMENT ME!!!
-        return null;
+        boolean usuarioExiste = false;
+        Tuite tuite = null;
+        for (Usuario usu : usuarios){
+            if(usu.equals(usuario))
+                usuarioExiste = true;
+        }
+        if(usuarioExiste && texto.length() < TAMANHO_MAXIMO_TUITES) {
+            tuite = new Tuite(usuario, texto);
+            setandoHashtag(tuite);
+            usuario.addTuitesFeitos();
+        }
+
+        return tuite;
+    }
+
+    private void setandoHashtag(Tuite tuite){
+        int maior = 0;
+        for(Object s : tuite.getHashTags()){
+            Hashtag h = (Hashtag) s;
+            if(!hashtags.contains(h))
+                hashtags.add(h);
+            else{
+                hashtags.get(hashtags.indexOf(h)).addquant();
+            }
+        }
+        for(Hashtag h: hashtags){
+            if(h.getQuant() > maior){
+                maior = h.getQuant();
+                hashtagMaiscomum = h;
+            }
+        }
     }
 
     /**
@@ -48,39 +78,7 @@ public class TuiterLite<T> {
      * @return A hashtag mais comum, ou null se nunca uma hashtag houver sido tuitada.
      */
     public String getHashtagMaisComum() {
-        // ToDo IMPLEMENT ME!!!
-        return null;
+        return hashtagMaiscomum.getNome();
     }
 
-    // Mainzinho bobo, apenas ilustrando String.split(regexp), e o String.startsWith()
-
-    public static void main(String[] args) {
-        String frase = "Testando algo,sdf com #hashtags no meio #teste vamos ver!fdfgf";
-        String[] palavras = frase.split("[\\s,!]");
-        for (String palavra : palavras) {
-            if (palavra.startsWith("#")) {
-                System.out.println(palavra);
-            }
-        }
-
-        // Ilustrando o uso de um StringBuilder (ou StringBuffer)
-        StringBuffer sb = new StringBuffer();
-        sb.append("Oi,");
-        sb.append(" tudo bem?");
-        sb.append("0").append("1").append(2).append("3");
-        String resultadoDasConcatenacoes = sb.toString();
-        System.out.println(resultadoDasConcatenacoes);
-
-        /* equivalentemente (mas bem menos performático,
-              porque cria novas Strings a cada concatenação) */
-        String minhaString;
-        minhaString = "Oi,";
-        minhaString += " tudo bem?";
-        minhaString += "0";
-        minhaString += "1";
-        minhaString += "2";
-        minhaString += "3";
-        System.out.println(minhaString);
-
-    }
 }

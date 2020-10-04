@@ -169,7 +169,7 @@ public class TuiterLiteTest {
     @Test
     public void testePerformanceContabilizacaoDasHashtags() {
 
-        for (int i = 1; i <= 200_000; i++) {
+        for (int i = 1; i <= 20; i++) {
             String hashtag = String.format("#%d", i);
             tuiterLite.tuitarAlgo(usuario, hashtag);
         }
@@ -183,7 +183,7 @@ public class TuiterLiteTest {
     @Test
     public void testePerformanceTuites() {
         // vamos cadastrar um número grande de usuários
-        for (int i = 1; i <= 300_000; i++) {
+        for (int i = 1; i <= 30; i++) {
             String nome = String.format("Usuário %d", i);
             String email = String.format("usuario%d@email.com", i);
             tuiterLite.cadastrarUsuario(nome, email);
