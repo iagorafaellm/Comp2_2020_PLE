@@ -4,16 +4,14 @@ public class Tuite<T> {
 
     private final Usuario autor;
     private final String texto;
-
-    private ArrayList<String> hashtags;
-
+    private ArrayList<String> hashTags;
     private T anexo;
 
     public Tuite(Usuario autor, String texto) {
         this.autor = autor;
         this.texto = texto;
-        this.hashtags = new ArrayList<>();
-        extrairHashtags();
+        this.hashTags = new ArrayList<>();
+        extrairHashtags(texto);
     }
 
     public void anexarAlgo(T anexo) {
@@ -21,7 +19,7 @@ public class Tuite<T> {
     }
 
     public Object getAnexo() {
-        return anexo;
+        return this.anexo;
     }
 
     public Usuario getAutor() {
@@ -33,15 +31,16 @@ public class Tuite<T> {
     }
 
     public ArrayList<String> getHashtags() {
-        return hashtags;
+        return hashTags;
     }
 
-    private void extrairHashtags() {
-        String[] tokens = this.texto.split("[\\s,]");
-        for (String token : tokens) {
-            if (token.startsWith("#")) {
-                this.hashtags.add(token);
+    private void extrairHashtags(String texto) {
+        String[] palavras = texto.split(" ");
+        for (String palavra : palavras) {
+            if (palavra.startsWith("#")) {
+                hashTags.add(palavra);
             }
         }
     }
+
 }

@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  *  Esta classe implementa um sistema de mensagens curtas estilo Twitter.
@@ -15,14 +13,16 @@ public class TuiterLite<T> {
 
     public static final int TAMANHO_MAXIMO_TUITES = 120;
 
-    private List<Usuario> usuarios;  // transformar em um Map<String, Usuario> usuarioByEmail;
+    private Set<Usuario> usuarios = new HashSet<>();                // transformar em um Map<String, Usuario> usuarioByEmail;
+    private Map<String, Integer> qtdByHashtags = new HashMap<>();   // transformar em um Map<String, Integer> contByHashtag;
+    private ArrayList<Tuite> tuites = new ArrayList<>();
 
-    private List<HashtagComContador> hashtags;  // transformar em um Map<String, Integer> contByHashtag;
-
+    /**
     public TuiterLite() {
         this.usuarios = new ArrayList<>();
         this.hashtags = new ArrayList<>();
     }
+    */
 
     /**
      * Cadastra um usuário, retornando o novo objeto Usuario criado.
@@ -33,13 +33,7 @@ public class TuiterLite<T> {
      */
     public Usuario cadastrarUsuario(String nome, String email) {
         Usuario novoUsuario = new Usuario(nome, email);
-
-        if (this.usuarios.contains(novoUsuario)) {
-            return null;
-        }
-
         this.usuarios.add(novoUsuario);
-
         return novoUsuario;
     }
 
@@ -53,29 +47,17 @@ public class TuiterLite<T> {
      * @return Um "tuíte", que será devidamente publicado no sistema
      */
     public Tuite tuitarAlgo(Usuario usuario, String texto) {
+        boolean autorDesconhecido = usuario.getNome().equals("Usuário Desconhecido") || usuario.getEmail().equals("unknown@void.com");
+        boolean tamanhoMaximoExcedido = texto.length() > TuiterLite.TAMANHO_MAXIMO_TUITES;
 
-        if (texto.length() > TAMANHO_MAXIMO_TUITES) {
+        if(autorDesconhecido || tamanhoMaximoExcedido) {
             return null;
         }
 
-        if (!this.usuarios.contains(usuario)) {
-            return null;
-        }
-
-        Tuite tuite = new Tuite(usuario, texto);
-
-        Collection<String> hashtagsDoTuite = tuite.getHashtags();
-        for (String hashtag : hashtagsDoTuite) {
-            HashtagComContador hashtagComContador = localizarHashtagComContador(hashtag);
-            if (hashtagComContador != null) {
-                hashtagComContador.cont++;
-            } else {
-                hashtagComContador = new HashtagComContador(hashtag, 1);
-                this.hashtags.add(hashtagComContador);
-            }
-        }
-
-        usuario.contabilizarNovoTuite();
+        atualizaUsuario(usuario);
+        Tuite tuite = new Tuite<>(usuario, texto);
+        tuites.add(tuite);
+        adicionarHashTag(tuite.getHashtags());
         return tuite;
     }
 
@@ -85,64 +67,58 @@ public class TuiterLite<T> {
      * @return A hashtag mais comum, ou null se nunca uma hashtag houver sido tuitada.
      */
     public String getHashtagMaisComum() {
-        int maxCont = 0;
-        String result = null;
-        for (HashtagComContador hashtagComContador : this.hashtags) {
-            if (hashtagComContador.cont > maxCont) {
-                maxCont = hashtagComContador.cont;
-                result = hashtagComContador.hashtag;
-            }
-        }
-        return result;
+        return Collections.max(qtdByHashtags.entrySet(), Map.Entry.comparingByValue()).getKey();
     }
 
-    private HashtagComContador localizarHashtagComContador(String hashtag) {
-        for (HashtagComContador hashtagComContador : this.hashtags) {
-            if (hashtagComContador.hashtag.equals(hashtag)) {
-                return hashtagComContador;
-            }
-        }
-        return null;
+    /**
+     * Incrementa a quantidade de tuites do usuário e o promove, se for o caso
+     * @param usuario o usuário a ser atualizado
+     */
+    private void atualizaUsuario(Usuario usuario) {
+        int qtdTuitesUsuario = usuario.getQtdTuites();
+
+        qtdTuitesUsuario++;
+        usuario.setQtdTuites(qtdTuitesUsuario);
+        verificaPromocaoUsuarioASenior(usuario, qtdTuitesUsuario);
+        verificaPromocaoUsuarioANinja(usuario, qtdTuitesUsuario);
     }
 
-    private class HashtagComContador {
-        final String hashtag;
-        int cont;
-        HashtagComContador(String hashtag, int cont) {
-            this.hashtag = hashtag;
-            this.cont = cont;
+    /**
+     * Verifica se o usuário chegou no mínimo de tuites para ser promovido a senior e o promove, se for o caso
+     * @param usuario o usuário em questão
+     * @param qtdTuitesUsuario a quantidade de tuites desse usuário
+     */
+    private void verificaPromocaoUsuarioASenior(Usuario usuario, int qtdTuitesUsuario) {
+        boolean promoverUsuarioASenior = qtdTuitesUsuario >= Usuario.MIN_TUITES_SENIOR;
+
+        if(promoverUsuarioASenior) {
+            usuario.setNivel(NivelUsuario.SENIOR);
         }
     }
 
-    // Mainzinho bobo, apenas ilustrando String.split(regexp), e o String.startsWith()
+    /**
+     * Verifica se o usuário chegou no mínimo de tuites para ser promovido a ninja e o promove, se for o caso
+     * @param usuario o usuário em questão
+     * @param qtdTuitesUsuario a quantidade de tuites desse usuário
+     */
+    private void verificaPromocaoUsuarioANinja(Usuario usuario, int qtdTuitesUsuario) {
+        boolean promoverUsuarioANinja = qtdTuitesUsuario >= Usuario.MIN_TUITES_NINJA;
 
-    public static void main(String[] args) {
-        String frase = "Testando algo,sdf com #hashtags no meio #teste vamos ver!fdfgf";
-        String[] palavras = frase.split("[\\s,!]");
-        for (String palavra : palavras) {
-            if (palavra.startsWith("#")) {
-                System.out.println(palavra);
-            }
+        if(promoverUsuarioANinja) {
+            usuario.setNivel(NivelUsuario.NINJA);
         }
-
-        // Ilustrando o uso de um StringBuilder (ou StringBuffer)
-        StringBuffer sb = new StringBuffer();
-        sb.append("Oi,");
-        sb.append(" tudo bem?");
-        sb.append("0").append("1").append(2).append("3");
-        String resultadoDasConcatenacoes = sb.toString();
-        System.out.println(resultadoDasConcatenacoes);
-
-        /* equivalentemente (mas bem menos performático,
-              porque cria novas Strings a cada concatenação) */
-        String minhaString;
-        minhaString = "Oi,";
-        minhaString += " tudo bem?";
-        minhaString += "0";
-        minhaString += "1";
-        minhaString += "2";
-        minhaString += "3";
-        System.out.println(minhaString);
-
     }
+
+    /**
+     * Adiciona novas hashtags ao tuiter
+     * @param hashtags
+     */
+    private void adicionarHashTag(ArrayList<String> hashtags) {
+        for (String hashtag : hashtags) {
+            boolean hashtagCadastrada = qtdByHashtags.get(hashtag) != null;
+            int qtdAtual = hashtagCadastrada ? qtdByHashtags.get(hashtag) : 0;
+            qtdByHashtags.put(hashtag, ++qtdAtual);
+        }
+    }
+
 }

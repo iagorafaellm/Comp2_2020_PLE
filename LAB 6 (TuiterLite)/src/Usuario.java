@@ -10,9 +10,7 @@ public class Usuario {
     private String nome;
     private Image foto;
     private int contTuites;
-
-    // Pode ser INICIANTE, SENIOR ou NINJA
-    private NivelUsuario nivel;
+    private NivelUsuario nivel;     // Pode ser INICIANTE, SENIOR ou NINJA
 
     public Usuario(String nome, String email) {
         this.email = email;
@@ -38,22 +36,19 @@ public class Usuario {
     }
 
     public NivelUsuario getNivel() {
-        return nivel;
+        return this.nivel;
     }
 
-    void contabilizarNovoTuite() {
-        this.contTuites++;
-        atualizarNivel();
+    public void setNivel(NivelUsuario nivel) {
+        this.nivel = nivel;
     }
 
-    private void atualizarNivel() {
-        if (this.contTuites >= MIN_TUITES_NINJA) {
-            this.nivel = NivelUsuario.NINJA;
-        } else if (this.contTuites >= MIN_TUITES_SENIOR) {
-            this.nivel = NivelUsuario.SENIOR;
-        } else {
-            this.nivel = NivelUsuario.INICIANTE;
-        }
+    public int getQtdTuites() {
+        return contTuites;
+    }
+
+    public void setQtdTuites(int qtdTuites) {
+        this.contTuites = qtdTuites;
     }
 
     @Override
@@ -61,12 +56,12 @@ public class Usuario {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Usuario usuario = (Usuario) o;
-        return Objects.equals(email, usuario.email);
+        return email.equals(usuario.email);
     }
 
     @Override
     public int hashCode() {
-
         return Objects.hash(email);
     }
+
 }
