@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TesteCalculadorIntersecao {
 
-    private static final int MAXIMO = 120_000;
+    private static final int MAXIMO = 1_500_000;
 
     private List<Integer> lista1;
     private List<Integer> lista2;
