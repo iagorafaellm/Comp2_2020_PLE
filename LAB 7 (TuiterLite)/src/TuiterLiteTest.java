@@ -31,23 +31,31 @@ public class TuiterLiteTest {
     }
 
     @Test
-    public void testeAutorDoTuite() {
+    public void testeAutorDoTuite() throws UsuarioDesconhecidoException, TamanhoMaximoExcedidoException {
         Tuite tuite = tuiterLite.tuitarAlgo(usuario, "Testando");
         assertEquals("O tuíte deve retornar corretamente seu autor",
                 usuario, tuite.getAutor());
     }
 
     @Test
-    public void testeTuiteDeUsuarioDesconhecido() {
-        assertNull("Não deve ser possível tuitar algo se o usuário é desconhecido",
-                tuiterLite.tuitarAlgo(
-                        new Usuario("Usuário Desconhedido", "unknown@void.com"),
-                        "Testando"));
+    public void testeTuiteDeUsuarioDesconhecido() throws TamanhoMaximoExcedidoException {
+        try {
+            tuiterLite.tuitarAlgo(new Usuario("Usuário Desconhecido", "unknown@void.com"), "Testando");
+            fail("Uma exceção deve ser lançada se o autor for desconhecido");
+        } catch (UsuarioDesconhecidoException e) {
+            // está ok, porque a exceção deveria ser lançada pois o autor é desconhecido
+            assertEquals("Um usuário desconhecido não pode fazer um tuite", e.getMessage());
+        }
     }
 
     @Test
-    public void testeTamanhoTuite() {
-        assertNotNull(tuiterLite.tuitarAlgo(usuario, "Teste curto"));
+    public void testeTamanhoTuite() throws UsuarioDesconhecidoException {
+
+        try{
+            tuiterLite.tuitarAlgo(usuario, "Teste curto");
+        } catch (TamanhoMaximoExcedidoException e) {
+            fail("Nenhuma exceção deve ser lançada nesse caso, o tuite deve ser feito sem problemas");
+        }
 
         // testaremos para 100 tamanhos diferentes, todos maiores do que o máximo permitido
         for (int excessoCaracteres = 1; excessoCaracteres <= 100; excessoCaracteres++) {
@@ -60,14 +68,20 @@ public class TuiterLiteTest {
             }
             String texto = sb.toString();
 
-            assertNull("Um tuite maior do que o tamanho máximo deve ser ignorado",
-                    tuiterLite.tuitarAlgo(usuario, texto));
+            try {
+                tuiterLite.tuitarAlgo(usuario, texto);
+                fail("Uma exceção deve ser lançada se o tamanho máximo do tuite for excedido");
+            } catch (TamanhoMaximoExcedidoException e) {
+                // está ok, porque a exceção deveria ser lançada pois o tuite excede o tamanho máximo permitido
+                assertEquals("Um tuite não pode ultrapassar o tamanho de 120 caracteres", e.getMessage());
+            }
+
         }
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testeAnexo() {
+    public void testeAnexo() throws UsuarioDesconhecidoException, TamanhoMaximoExcedidoException {
 
         Tuite tuite = tuiterLite.tuitarAlgo(usuario, "Testando");
 
@@ -84,7 +98,7 @@ public class TuiterLiteTest {
     }
 
     @Test
-    public void testeApenasUmTipoPermitidoComoAnexo() {
+    public void testeApenasUmTipoPermitidoComoAnexo() throws UsuarioDesconhecidoException, TamanhoMaximoExcedidoException {
 
         // vamos criar um outro TuiterLite aqui, especificando que ele deverá se relacionar com o tipo Image
         TuiterLite<Image> tuiterLiteQueAceitaApenasImagensComoAnexo = new TuiterLite<>();
@@ -104,7 +118,7 @@ public class TuiterLiteTest {
     }
 
     @Test
-    public void testeHashtags() {
+    public void testeHashtags() throws UsuarioDesconhecidoException, TamanhoMaximoExcedidoException {
 
         Tuite tuite = tuiterLite.tuitarAlgo(usuario, "#LAB5 Testando algo com #hashtag ao longo... #teste");
 
@@ -129,7 +143,7 @@ public class TuiterLiteTest {
     }
 
     @Test
-    public void testeTipoUsuario() {
+    public void testeTipoUsuario() throws UsuarioDesconhecidoException, TamanhoMaximoExcedidoException {
         // sanity check
         assertEquals("Um usuário sem nenhum tuite deve estar no nível INICIANTE",
                 NivelUsuario.INICIANTE, usuario.getNivel());
@@ -159,35 +173,42 @@ public class TuiterLiteTest {
 
         // verifique a promoção ao nível seguinte
         assertEquals("O usuário deve ser promovido automaticamente a NINJA quando atinge a marca de " +
-                Usuario.MIN_TUITES_NINJA + " tuítes",
-                NivelUsuario.NINJA, usuario.getNivel());
+                Usuario.MIN_TUITES_NINJA + " tuítes", NivelUsuario.NINJA, usuario.getNivel());
     }
 
     /////
     /////   ATENÇÃO: Este teste deve rodar rapidamente (poucos segundos)
     /////
     @Test
-    public void testePerformanceContabilizacaoDasHashtags() {
+    public void testePerformanceContabilizacaoDasHashtags() throws UsuarioDesconhecidoException, TamanhoMaximoExcedidoException {
+
+        int tamanho = 300_000;
         long inicio = System.currentTimeMillis();
-        for (int i = 1; i <= 200_000; i++) {
+
+        for (int i = 1; i <= tamanho; i++) {
             String hashtag = String.format("#%d", i);
             tuiterLite.tuitarAlgo(usuario, hashtag);
         }
         tuiterLite.tuitarAlgo(usuario, "#5");
+        long duracao = System.currentTimeMillis() - inicio;
+        System.out.println("duracao (" + tamanho + " tuites) = " + duracao + " milissegundos");
+
+        inicio = System.currentTimeMillis();
         assertEquals("#5", tuiterLite.getHashtagMaisComum());
-        System.out.println("duracao = " +
-                (System.currentTimeMillis() - inicio) + " milissegundos");
+        duracao = System.currentTimeMillis() - inicio;
+        System.out.println("duracao (encontrar hashtag mais comum) = " + duracao + " milissegundos");
     }
 
     /////
     /////   ATENÇÃO: Este teste deve rodar rapidamente (poucos segundos)
     /////
     @Test
-    public void testePerformanceTuites() {
+    public void testePerformanceTuites() throws TamanhoMaximoExcedidoException {
+        int tamanho = 300_000;
         long inicio = System.currentTimeMillis();
 
         // vamos cadastrar um número grande de usuários
-        for (int i = 1; i <= 300_000; i++) {
+        for (int i = 1; i <= tamanho; i++) {
             String nome = String.format("Usuário %d", i);
             String email = String.format("usuario%d@email.com", i);
             tuiterLite.cadastrarUsuario(nome, email);
@@ -195,11 +216,51 @@ public class TuiterLiteTest {
 
         // agora vamos tentar fazer um número grande de tuítes com usuário desconhecido
         Usuario usuarioNaoCadastrado = new Usuario("Usuário Desconhedido", "unknown@void.com");
-        for (int i = 1; i <= 300_000; i++) {
-            assertNull(tuiterLite.tuitarAlgo(usuarioNaoCadastrado, "Teste"));
+        for (int i = 1; i <= tamanho; i++) {
+            try {
+                assertNull(tuiterLite.tuitarAlgo(usuarioNaoCadastrado, "Teste"));
+                fail("Uma exceção deve ser lançada se o autor for desconhecido");
+            } catch (UsuarioDesconhecidoException e) {
+                // está ok, porque a exceção deveria ser lançada pois o autor é desconhecido
+                assertEquals("Um usuário desconhecido não pode fazer um tuite", e.getMessage());
+            }
         }
 
         System.out.println("duracao = " +
                 (System.currentTimeMillis() - inicio) + " milissegundos");
     }
+
+    @Test
+    public void testeAutorDesconhecidoException() {
+        Usuario usuarioDesconhecido = new Usuario("Usuário Desconhecido", "unknown@void.com");
+        try {
+            assertNull(tuiterLite.tuitarAlgo(usuarioDesconhecido, "Teste de Exception"));
+            fail("Uma exceção deve ser lançada se o autor for desconhecido");
+        } catch (UsuarioDesconhecidoException e) {
+            assertEquals("Um usuário desconhecido não pode fazer um tuite", e.getMessage());
+        } catch (TamanhoMaximoExcedidoException e) {
+            fail("A exceção de tamanho máximo não deve ser lançada nesse caso");
+        }
+    }
+
+    @Test
+    public void testeTamanhoMaximoExcedidoException() {
+        Usuario usuario = new Usuario("Usuário Teste", "teste@teste.com.br");
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= TuiterLite.TAMANHO_MAXIMO_TUITES; i++) {
+            sb.append("ABC");
+        }
+        String texto = sb.toString();
+
+        try {
+            assertNull(tuiterLite.tuitarAlgo(usuario, texto));
+            fail("Uma exceção deve ser lançada se o tamanho do tuite for excedido");
+        } catch (TamanhoMaximoExcedidoException e) {
+            assertEquals("Um tuite não pode ultrapassar o tamanho de 120 caracteres", e.getMessage());
+        } catch (UsuarioDesconhecidoException e) {
+            fail("A exceção de usuário desconhecido não deve ser lançada nesse caso");
+        }
+    }
+
 }

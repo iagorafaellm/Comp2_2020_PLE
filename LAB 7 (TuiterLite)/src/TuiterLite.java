@@ -13,16 +13,17 @@ public class TuiterLite<T> {
 
     public static final int TAMANHO_MAXIMO_TUITES = 120;
 
-    private Set<Usuario> usuarios = new HashSet<>();                // transformar em um Map<String, Usuario> usuarioByEmail;
-    private Map<String, Integer> qtdByHashtags = new HashMap<>();   // transformar em um Map<String, Integer> contByHashtag;
-    private ArrayList<Tuite> tuites = new ArrayList<>();
+    private Set<Usuario> usuarios;                  // transformar em um Map<String, Usuario> usuarioByEmail;
+    private Map<String, Integer> qtdByHashtags;     // transformar em um Map<String, Integer> contByHashtag;
+    private ArrayList<Tuite> tuites;
+    private String hashtagMaisComum;
+    private int quantOcorrenciasHashtagMaisComum;
 
-    /**
     public TuiterLite() {
-        this.usuarios = new ArrayList<>();
-        this.hashtags = new ArrayList<>();
+        this.tuites = new ArrayList<>();
+        this.usuarios = new HashSet<>();
+        this.qtdByHashtags = new HashMap<>();
     }
-    */
 
     /**
      * Cadastra um usuário, retornando o novo objeto Usuario criado.
@@ -45,13 +46,19 @@ public class TuiterLite<T> {
      * @param usuario O autor do tuíte
      * @param texto O texto desejado
      * @return Um "tuíte", que será devidamente publicado no sistema
+     * @throws UsuarioDesconhecidoException caso o autor do tuite seja um usuário desconhecido
+     * @throws TamanhoMaximoExcedidoException caso o tamanho máximo do tuite seja excedido
      */
-    public Tuite tuitarAlgo(Usuario usuario, String texto) {
+    public Tuite tuitarAlgo(Usuario usuario, String texto) throws UsuarioDesconhecidoException, TamanhoMaximoExcedidoException {
         boolean autorDesconhecido = usuario.getNome().equals("Usuário Desconhecido") || usuario.getEmail().equals("unknown@void.com");
         boolean tamanhoMaximoExcedido = texto.length() > TuiterLite.TAMANHO_MAXIMO_TUITES;
 
-        if(autorDesconhecido || tamanhoMaximoExcedido) {
-            return null;
+        if(autorDesconhecido) {
+            throw new UsuarioDesconhecidoException("Um usuário desconhecido não pode fazer um tuite");
+        }
+
+        if(tamanhoMaximoExcedido) {
+            throw new TamanhoMaximoExcedidoException("Um tuite não pode ultrapassar o tamanho de 120 caracteres");
         }
 
         atualizaUsuario(usuario);
@@ -67,7 +74,7 @@ public class TuiterLite<T> {
      * @return A hashtag mais comum, ou null se nunca uma hashtag houver sido tuitada.
      */
     public String getHashtagMaisComum() {
-        return Collections.max(qtdByHashtags.entrySet(), Map.Entry.comparingByValue()).getKey();
+        return this.hashtagMaisComum;
     }
 
     /**
@@ -110,7 +117,7 @@ public class TuiterLite<T> {
     }
 
     /**
-     * Adiciona novas hashtags ao tuiter
+     * Adiciona novas hashtags ao tuiter - é uma arraylist de hashtags, só que de um novo tuite
      * @param hashtags
      */
     private void adicionarHashTag(ArrayList<String> hashtags) {
@@ -118,6 +125,11 @@ public class TuiterLite<T> {
             boolean hashtagCadastrada = qtdByHashtags.get(hashtag) != null;
             int qtdAtual = hashtagCadastrada ? qtdByHashtags.get(hashtag) : 0;
             qtdByHashtags.put(hashtag, ++qtdAtual);
+
+            if (qtdAtual > this.quantOcorrenciasHashtagMaisComum) {
+                this.hashtagMaisComum = hashtag;
+                this.quantOcorrenciasHashtagMaisComum = qtdAtual;
+            }
         }
     }
 
