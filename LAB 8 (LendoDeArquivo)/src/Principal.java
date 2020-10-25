@@ -1,40 +1,37 @@
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.InputMismatchException;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Principal {
 
-
     public static void main(String[] args) {
 
-        /* ATENÇÃO:  Este main() serve apenas para ilustrar o uso do Scanner apontando para
-                     um arquivo de entrada. Ele não é o main() que vc precisa escrever
-                     para resolver o exercíciodo LAB 8 descrito em LAB8.txt */
+        Scanner scanner = new Scanner(System.in);   //para ler do standard in (teclado)
 
+        boolean existeArquivo;                      //se o arquivo existe, true e, caso contrário, false
 
+            do {
+                System.out.println("Bem vindx! Por favor, comecemos digitando o nome do arquivo desejado: ");
+                String nomeArquivo = scanner.nextLine();
 
-//        Scanner scanner = new Scanner(System.in);  para ler do standard in (teclado)
+                existeArquivo = false;
 
+                try {
 
-        File arquivo = new File("LAB8.txt");
+                    System.out.printf("Média da turma: %.2f%n", LendoDeArquivoUtils.calcularMedia(nomeArquivo));
+                    existeArquivo = true;
 
-        Scanner scanner = null;
+                } catch (ArquivoCorrompidoException e) {
 
-        try {
-            scanner = new Scanner(arquivo);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+                    System.out.println("Esse arquivo está corrompido!");
 
-        while (scanner.hasNext()) {
-            System.out.println(scanner.nextLine());
-//            try {
-//                scanner.nextFloat();
-//            } catch (Exception e) {
-//
-//            }
-        }
+                    System.out.println("Esse arquivo tem exatas " + e.getLinhasCorrompidas() +
+                            " linhas inválidas.");
+                    existeArquivo = true;
+
+                } catch (FileNotFoundException e) {
+                    System.out.println("Esse arquivo não existe!");
+                }
+
+            } while (!existeArquivo);
     }
 }
